@@ -1,25 +1,28 @@
 const router = require('express').Router()
-const controller = require('../controllers/PostController')
+const controller = require('../controllers/CategoryController')
 const middleware = require('../middleware')
 
-router.get('/', controller.GetPosts)
+router.get('/', controller.GetCategorys)
+
 router.post(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.CreatePost
+  controller.CreateCategory
 )
+
 router.put(
-  '/:post_id',
+  '/:category_id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdatePost
+  controller.UpdateCategory
 )
+
 router.delete(
-  '/:post_id',
+  '/:category_id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.DeletePost
+  controller.DeleteCategory
 )
 
 module.exports = router
