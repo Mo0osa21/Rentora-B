@@ -1,11 +1,20 @@
 const mongoose = require('mongoose')
 const userSchema = require('./User')
-const postSchema = require('./Post')
+const categorySchema = require('./Category')
+const bookSchema = require('./Book')
+const propertySchema = require('./Property')
+const reviewSchema = require('./Review')
 
 const User = mongoose.model('User', userSchema)
-const Post = mongoose.model('Post', postSchema)
+const Category = mongoose.model('Category', categorySchema)
+const Book = mongoose.model('Book', bookSchema)
+const Property = mongoose.model('Property', propertySchema)
+const Review = mongoose.model('Review', reviewSchema)
 
 module.exports = {
   User,
-  Post
+  Category,
+  Book,
+  Property,
+  Review
 }
