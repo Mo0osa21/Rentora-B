@@ -12,7 +12,7 @@ const bookSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true },
   status: {
     type: String,
-    enum: ['pending', 'booked', 'expired'],
+    enum: ['pending', 'active', 'expired'],
     default: 'pending'
   },
   createdAt: { type: Date, default: Date.now }
