@@ -49,6 +49,9 @@ const CreateProperty = async (req, res) => {
       amenities
     } = req.body
 
+    // Assuming the user ID is passed from the authentication middleware
+    const userId = res.locals.payload.id
+
     const discountedPrice =
       discount > 0
         ? (price - (price * discount) / 100).toFixed(2)
@@ -63,7 +66,8 @@ const CreateProperty = async (req, res) => {
       imageUrl,
       category,
       location,
-      amenities
+      amenities,
+      user: userId // Add user ID to property
     })
 
     res.status(200).send(property)
@@ -72,10 +76,9 @@ const CreateProperty = async (req, res) => {
     res.status(500).send({ error: 'Error creating property' })
   }
 }
-
-// Update a property by ID
 const UpdateProperty = async (req, res) => {
   try {
+    const { propertyId } = req.params // Get propertyId from the route
     const {
       name,
       description,
@@ -84,16 +87,19 @@ const UpdateProperty = async (req, res) => {
       imageUrl,
       category,
       location,
-      amenities
-    } = req.body
+      amenities,
+      availability
+    } = req.body // Get the fields to update
 
-    let discountedPrice = price
-    if (discount > 0) {
-      discountedPrice = (price - (price * discount) / 100).toFixed(2)
-    }
+    // Calculate discounted price if there's a discount
+    const discountedPrice =
+      discount > 0
+        ? (price - (price * discount) / 100).toFixed(2)
+        : price.toFixed(2)
 
+    // Find the property and update it
     const property = await Property.findByIdAndUpdate(
-      req.params.propertyId,
+      propertyId,
       {
         name,
         description,
@@ -103,39 +109,41 @@ const UpdateProperty = async (req, res) => {
         imageUrl,
         category,
         location,
-        amenities
+        amenities,
+        availability
       },
-      { new: true }
+      { new: true } // Return the updated property
     )
 
+    // If property is not found
     if (!property) {
       return res
         .status(404)
         .send({ msg: 'Property not found', status: 'Error' })
     }
 
-    res.status(200).send(property)
+    // Successfully updated
+    res.status(200).send({
+      msg: 'Property updated successfully.',
+      property
+    })
   } catch (error) {
     console.error('Error updating property:', error)
-    res.status(500).send({ error: 'Error updating property' })
+    res.status(500).send({
+      msg: 'Failed to update property. Please try again later.',
+      status: 'Error'
+    })
   }
 }
 
-// Delete a property by ID
 const DeleteProperty = async (req, res) => {
   try {
-    const propertyId = mongoose.Types.ObjectId(req.params.propertyId)
+    const { propertyId } = req.params
 
-    // Check if the property has active bookings
-    const hasBookings = await Book.findOne({ property: propertyId })
-    if (hasBookings) {
-      return res.status(400).send({
-        msg: 'Property cannot be deleted as it has active bookings.',
-        status: 'Error'
-      })
-    }
-
+    // Attempt to delete the property by its ID
     const deletedProperty = await Property.deleteOne({ _id: propertyId })
+
+    // If no property was deleted (i.e., not found)
     if (deletedProperty.deletedCount === 0) {
       return res.status(404).send({
         msg: 'Property not found.',
@@ -143,6 +151,7 @@ const DeleteProperty = async (req, res) => {
       })
     }
 
+    // Success response if property was deleted
     res.status(200).send({
       msg: 'Property deleted successfully.',
       payload: propertyId,

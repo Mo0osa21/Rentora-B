@@ -16,7 +16,7 @@ const GetAllBooks = async (req, res) => {
 // Get all books for a specific user
 const GetUserBooks = async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = res.locals.payload.id
     const books = await Book.find({ user: userId }).populate('propertyId')
     res.status(200).send(books)
   } catch (error) {
@@ -68,22 +68,23 @@ const UpdateBookStatus = async (req, res) => {
 // Place a booking for a property (this would be equivalent to placing an order in an e-commerce system)
 const PlaceBooking = async (req, res) => {
   try {
-    const userId = req.user.id
-    const { propertyId, startDate, endDate } = req.body
+    const userId = res.locals.payload.id
+    const { property, startDate, endDate, totalPrice } = req.body
 
-    const property = await Property.findById(propertyId)
+    const propertyU = await Property.findById(property)
 
-    if (!property) {
+    if (!propertyU) {
       return res.status(400).send({ msg: 'Property not found' })
     }
 
     // Create a new booking
     const newBooking = await Book.create({
       user: userId,
-      propertyId: propertyId,
+      property: propertyU,
       startDate,
       endDate,
-      status: 'Pending',
+      status: 'pending',
+      totalPrice,
       bookingDate: new Date()
     })
 
