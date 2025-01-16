@@ -4,7 +4,7 @@ const middleware = require('../middleware')
 
 // Get all properties with optional category filtering
 router.get(
-  '/properties',
+  '/',
   middleware.stripToken,
   middleware.verifyToken,
   controller.GetProperties
@@ -12,7 +12,7 @@ router.get(
 
 // Get a single property by ID
 router.get(
-  '/property/:propertyId',
+  '/:propertyId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.GetProperty
@@ -20,7 +20,7 @@ router.get(
 
 // Create a new property (admin or authorized user)
 router.post(
-  '/property',
+  '/',
   middleware.stripToken,
   middleware.verifyToken,
   controller.CreateProperty
@@ -28,7 +28,7 @@ router.post(
 
 // Update a property by ID (admin or authorized user)
 router.put(
-  '/property/:propertyId',
+  '/:propertyId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.UpdateProperty
@@ -36,7 +36,7 @@ router.put(
 
 // Delete a property by ID (admin or authorized user)
 router.delete(
-  '/property/:propertyId',
+  '/:propertyId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.DeleteProperty

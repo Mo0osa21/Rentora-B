@@ -4,7 +4,7 @@ const middleware = require('../middleware')
 
 // Get all bookings (books) in the system
 router.get(
-  '/all',
+  '/',
   middleware.stripToken,
   middleware.verifyToken,
   controller.GetAllBooks
@@ -20,7 +20,7 @@ router.get(
 
 // Place a booking for a property
 router.post(
-  '/place',
+  '/',
   middleware.stripToken,
   middleware.verifyToken,
   controller.PlaceBooking
@@ -28,7 +28,7 @@ router.post(
 
 // Update the status of a booking (e.g., Pending, Active, Cancelled)
 router.put(
-  '/update/:bookId',
+  '/:bookId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.AutoUpdateBookStatus

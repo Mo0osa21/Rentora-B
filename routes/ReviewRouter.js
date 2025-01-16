@@ -4,7 +4,7 @@ const middleware = require('../middleware')
 
 // Get all reviews for a specific property
 router.get(
-  '/reviews/:propertyId',
+  '/:propertyId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.getReviewsForProperty
@@ -12,7 +12,7 @@ router.get(
 
 // Add a review for a property
 router.post(
-  '/review',
+  '/',
   middleware.stripToken,
   middleware.verifyToken,
   controller.addReview
@@ -20,7 +20,7 @@ router.post(
 
 // Check if a user is eligible to review a property (has a confirmed booking)
 router.get(
-  '/review/eligibility/:userId/:propertyId',
+  '/eligibility/:userId/:propertyId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.checkEligibility
@@ -28,7 +28,7 @@ router.get(
 
 // Edit an existing review
 router.put(
-  '/review/:reviewId',
+  '/:reviewId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.editReview
@@ -36,7 +36,7 @@ router.put(
 
 // Delete a review
 router.delete(
-  '/review/:reviewId',
+  '/:reviewId',
   middleware.stripToken,
   middleware.verifyToken,
   controller.deleteReview
