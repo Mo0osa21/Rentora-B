@@ -5,7 +5,7 @@ const GetAllBooks = async (req, res) => {
   try {
     const books = await Book.find({})
       .populate('user', 'name email') // Assuming the book is associated with the user
-      .populate('propertyId') // Assuming book references the Property model
+      .populate('property') // Assuming book references the Property model
     res.status(200).send(books)
   } catch (error) {
     console.error('Error fetching books:', error)
@@ -17,7 +17,7 @@ const GetAllBooks = async (req, res) => {
 const GetUserBooks = async (req, res) => {
   try {
     const userId = res.locals.payload.id
-    const books = await Book.find({ user: userId }).populate('propertyId')
+    const books = await Book.find({ user: userId }).populate('property')
     res.status(200).send(books)
   } catch (error) {
     console.error('Error fetching user books:', error)
@@ -25,43 +25,42 @@ const GetUserBooks = async (req, res) => {
   }
 }
 
-// Update the booking status (e.g., Pending, Confirmed, Cancelled)
-const UpdateBookStatus = async (req, res) => {
+const AutoUpdateBookStatus = async (req, res) => {
   try {
     const { bookId } = req.params
-    const { status } = req.body
 
-    const validStatuses = ['pending', 'active', 'expired']
-
-    const normalizedStatus =
-      status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-
-    if (!validStatuses.includes(normalizedStatus)) {
-      return res.status(400).send({ msg: 'Invalid status' })
-    }
-
-    const statusActions = {
-      Confirmed: { confirmedAt: new Date() },
-      Cancelled: { cancelledAt: new Date() }
-    }
-
-    const updateData = {
-      status: normalizedStatus,
-      ...statusActions[normalizedStatus]
-    }
-
-    const book = await Book.findByIdAndUpdate(bookId, updateData, { new: true })
+    // Find the booking by ID
+    const book = await Book.findById(bookId)
     if (!book) {
       return res.status(404).send({ msg: 'Booking not found' })
     }
 
+    const currentDate = new Date()
+
+    // Determine status based on the current date
+    let updatedStatus = book.status
+
+    if (currentDate < book.startDate) {
+      updatedStatus = 'pending'
+    } else if (currentDate >= book.startDate && currentDate <= book.endDate) {
+      updatedStatus = 'active'
+    } else if (currentDate > book.endDate) {
+      updatedStatus = 'expired'
+    }
+
+    // Only update if the status has changed
+    if (book.status !== updatedStatus) {
+      book.status = updatedStatus
+      await book.save()
+    }
+
     res.status(200).send({
-      msg: `Booking status updated to "${normalizedStatus}"`,
+      msg: `Booking status auto-updated to "${updatedStatus}"`,
       book
     })
   } catch (error) {
-    console.error('Error updating booking status:', error)
-    res.status(500).send({ error: 'Failed to update booking status' })
+    console.error('Error auto-updating booking status:', error)
+    res.status(500).send({ error: 'Failed to auto-update booking status' })
   }
 }
 
@@ -102,5 +101,5 @@ module.exports = {
   GetAllBooks,
   GetUserBooks,
   PlaceBooking,
-  UpdateBookStatus
+  AutoUpdateBookStatus
 }

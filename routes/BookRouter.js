@@ -31,7 +31,7 @@ router.put(
   '/update/:bookId',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdateBookStatus
+  controller.AutoUpdateBookStatus
 )
 
 module.exports = router
