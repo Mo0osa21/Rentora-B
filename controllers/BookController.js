@@ -64,11 +64,10 @@ const AutoUpdateBookStatus = async (req, res) => {
   }
 }
 
-// Place a booking for a property (this would be equivalent to placing an order in an e-commerce system)
 const PlaceBooking = async (req, res) => {
   try {
     const userId = res.locals.payload.id
-    const { property, startDate, endDate, totalPrice } = req.body
+    const { property, startDate, endDate } = req.body
 
     const propertyU = await Property.findById(property)
 
@@ -76,10 +75,23 @@ const PlaceBooking = async (req, res) => {
       return res.status(400).send({ msg: 'Property not found' })
     }
 
+    // Calculate the number of reserved days
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const timeDiff = end - start
+    const daysReserved = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+
+    if (daysReserved <= 0) {
+      return res.status(400).send({ msg: 'Invalid reservation dates' })
+    }
+
+    // Calculate total price
+    const totalPrice = propertyU.discountedPrice * daysReserved
+
     // Create a new booking
     const newBooking = await Book.create({
       user: userId,
-      property: propertyU,
+      property: propertyU._id,
       startDate,
       endDate,
       status: 'pending',
@@ -97,9 +109,48 @@ const PlaceBooking = async (req, res) => {
   }
 }
 
+const GetPropertyBookings = async (req, res) => {
+  try {
+    const bookings = await Book.find({ property: req.params.propertyId })
+    res.status(200).json({ bookings })
+  } catch (error) {
+    console.error('Error fetching bookings:', error)
+    res.status(500).json({ msg: 'Failed to fetch bookings' })
+  }
+}
+
+const CancelBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id
+    const userId = res.locals.payload.id
+
+    // Find the booking
+    const booking = await Book.findById(bookingId)
+
+    if (!booking) {
+      return res.status(404).json({ msg: 'Booking not found' })
+    }
+
+    // Check if the user owns the booking
+    if (booking.user.toString() !== userId) {
+      return res.status(403).json({ msg: 'Unauthorized action' })
+    }
+
+    // Delete the booking
+    await Book.findByIdAndDelete(bookingId)
+
+    res.status(200).json({ msg: 'Booking deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting booking:', error)
+    res.status(500).json({ msg: 'Server error' })
+  }
+}
+
 module.exports = {
   GetAllBooks,
   GetUserBooks,
   PlaceBooking,
-  AutoUpdateBookStatus
+  AutoUpdateBookStatus,
+  GetPropertyBookings,
+  CancelBooking
 }

@@ -34,4 +34,18 @@ router.put(
   controller.AutoUpdateBookStatus
 )
 
+router.get(
+  '/property/:propertyId',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.GetPropertyBookings
+)
+
+router.delete(
+  '/:id',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.CancelBooking
+)
+
 module.exports = router
