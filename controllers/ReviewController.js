@@ -22,7 +22,7 @@ const addReview = async (req, res) => {
     // Ensure the user has booked the property and the status is "Confirmed"
     const eligibleBooking = await Book.findOne({
       user: userId,
-      propertyId,
+      property: propertyId,
       status: 'expired'
     })
 
@@ -56,7 +56,7 @@ const checkEligibility = async (req, res) => {
 
     const eligibleBooking = await Book.findOne({
       user: userId,
-      property,
+      property: propertyId,
       status: { $in: ['expired', 'expired'] }
     })
 
