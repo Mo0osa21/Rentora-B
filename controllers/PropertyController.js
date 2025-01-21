@@ -140,10 +140,19 @@ const DeleteProperty = async (req, res) => {
   try {
     const { propertyId } = req.params
 
-    // Attempt to delete the property by its ID
+    // Check if there are any bookings associated with this property
+    const existingBookings = await Book.find({ property: propertyId })
+
+    if (existingBookings.length > 0) {
+      return res.status(400).send({
+        msg: 'Cannot delete property. There are existing bookings.',
+        status: 'Error'
+      })
+    }
+
+    // Attempt to delete the property by its ID if no bookings exist
     const deletedProperty = await Property.deleteOne({ _id: propertyId })
 
-    // If no property was deleted (i.e., not found)
     if (deletedProperty.deletedCount === 0) {
       return res.status(404).send({
         msg: 'Property not found.',
@@ -151,7 +160,6 @@ const DeleteProperty = async (req, res) => {
       })
     }
 
-    // Success response if property was deleted
     res.status(200).send({
       msg: 'Property deleted successfully.',
       payload: propertyId,
