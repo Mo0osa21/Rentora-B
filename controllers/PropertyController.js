@@ -54,8 +54,8 @@ const CreateProperty = async (req, res) => {
 
     const discountedPrice =
       discount > 0
-        ? (price - (price * discount) / 100).toFixed(2)
-        : price.toFixed(2)
+        ? (price - (price * discount) / 100)
+        : price
 
     const property = await Property.create({
       name,
