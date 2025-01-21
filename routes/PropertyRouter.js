@@ -42,4 +42,11 @@ router.delete(
   controller.DeleteProperty
 )
 
+router.get(
+  '/user/my-properties',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.GetUserProperties
+)
+
 module.exports = router

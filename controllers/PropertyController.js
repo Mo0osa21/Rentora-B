@@ -166,10 +166,35 @@ const DeleteProperty = async (req, res) => {
   }
 }
 
+const GetUserProperties = async (req, res) => {
+  try {
+    // Get user ID from authentication middleware
+    const userId = res.locals.payload.id
+
+    // Fetch properties that belong to the logged-in user
+    const properties = await Property.find({ user: userId }).populate(
+      'category'
+    )
+
+    // If no properties found, return a message
+    if (properties.length === 0) {
+      return res
+        .status(404)
+        .send({ msg: 'No properties found for this user', status: 'Error' })
+    }
+
+    res.status(200).send(properties)
+  } catch (error) {
+    console.error('Error fetching user properties:', error)
+    res.status(500).send({ error: 'Error fetching user properties' })
+  }
+}
+
 module.exports = {
   GetProperties,
   GetProperty,
   CreateProperty,
   UpdateProperty,
-  DeleteProperty
+  DeleteProperty,
+  GetUserProperties
 }

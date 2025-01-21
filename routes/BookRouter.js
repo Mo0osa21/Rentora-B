@@ -26,7 +26,6 @@ router.post(
   controller.PlaceBooking
 )
 
-// Update the status of a booking (e.g., Pending, Active, Cancelled)
 router.put(
   '/:bookId',
   middleware.stripToken,
