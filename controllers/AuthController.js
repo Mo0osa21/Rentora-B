@@ -4,7 +4,7 @@ const middleware = require('../middleware')
 const Register = async (req, res) => {
   try {
     // Extracts the necessary fields from the request body
-    const { email, password, name } = req.body
+    const { email, password, name,picture } = req.body
     // Hashes the provided password
     let passwordDigest = await middleware.hashPassword(password)
     // Checks if there has already been a user registered with that email
@@ -15,7 +15,7 @@ const Register = async (req, res) => {
         .send('A user with that email has already been registered!')
     } else {
       // Creates a new user
-      const user = await User.create({ name, email, passwordDigest })
+      const user = await User.create({ name, email, passwordDigest,picture })
       // Sends the user as a response
       res.status(200).send(user)
     }
@@ -41,7 +41,8 @@ const Login = async (req, res) => {
         id: user._id,
         email: user.email,
         isAdmin: user.isAdmin,
-        name: user.name
+        name: user.name,
+        picture:user.picture
       }
       // Creates our JWT and packages it with our payload to send as a response
       let token = middleware.createToken(payload)
@@ -97,7 +98,8 @@ const UpdatePassword = async (req, res) => {
       id: updatedUser._id,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
-      name: updatedUser.name
+      name: updatedUser.name,
+      picture:updatedUser.picture
     }
 
     // Send a success response with the updated user data
