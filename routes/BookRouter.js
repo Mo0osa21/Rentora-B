@@ -27,7 +27,7 @@ router.post(
 )
 
 router.put(
-  '/:bookId',
+  '/:id',
   middleware.stripToken,
   middleware.verifyToken,
   controller.AutoUpdateBookStatus

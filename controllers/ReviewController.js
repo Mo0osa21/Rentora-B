@@ -57,7 +57,7 @@ const checkEligibility = async (req, res) => {
     const eligibleBooking = await Book.findOne({
       user: userId,
       property: propertyId,
-      status: { $in: ['expired', 'expired'] }
+      status: { $in: ['Expired', 'Expired'] }
     })
 
     res.status(200).json(eligibleBooking)

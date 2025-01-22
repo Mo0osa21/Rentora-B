@@ -26,41 +26,21 @@ const GetUserBooks = async (req, res) => {
 }
 
 const AutoUpdateBookStatus = async (req, res) => {
+  const { id } = req.params
+  const { status } = req.body
   try {
-    const { bookId } = req.params
-
-    // Find the booking by ID
-    const book = await Book.findById(bookId)
-    if (!book) {
-      return res.status(404).send({ msg: 'Booking not found' })
+    const updatedBooking = await Book.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    )
+    console.log(updatedBooking)
+    if (!updatedBooking) {
+      return res.status(404).json({ message: 'Booking not found' })
     }
-
-    const currentDate = new Date()
-
-    // Determine status based on the current date
-    let updatedStatus = book.status
-
-    if (currentDate < book.startDate) {
-      updatedStatus = 'pending'
-    } else if (currentDate >= book.startDate && currentDate <= book.endDate) {
-      updatedStatus = 'active'
-    } else if (currentDate > book.endDate) {
-      updatedStatus = 'expired'
-    }
-
-    // Only update if the status has changed
-    if (book.status !== updatedStatus) {
-      book.status = updatedStatus
-      await book.save()
-    }
-
-    res.status(200).send({
-      msg: `Booking status auto-updated to "${updatedStatus}"`,
-      book
-    })
+    res.json(updatedBooking)
   } catch (error) {
-    console.error('Error auto-updating booking status:', error)
-    res.status(500).send({ error: 'Failed to auto-update booking status' })
+    res.status(500).json({ message: 'Error updating booking' })
   }
 }
 
@@ -137,6 +117,13 @@ const CancelBooking = async (req, res) => {
     // Check if the user owns the booking
     if (booking.user.toString() !== userId) {
       return res.status(403).json({ msg: 'Unauthorized action' })
+    }
+
+    // Check if the booking status is 'Active' or 'Expired'
+    if (booking.status === 'Active' || booking.status === 'Expired') {
+      return res.status(400).json({
+        msg: 'Cannot delete booking with status "Active" or "Expired"'
+      })
     }
 
     // Delete the booking
