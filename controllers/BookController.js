@@ -81,12 +81,15 @@ const PlaceBooking = async (req, res) => {
     const timeDiff = end - start
     const daysReserved = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
 
-    if (daysReserved <= 0) {
+    if (daysReserved < 0) {
       return res.status(400).send({ msg: 'Invalid reservation dates' })
     }
 
+    // Ensure a minimum of 1 day charge if start and end dates are the same
+    const actualDaysReserved = daysReserved === 0 ? 1 : daysReserved
+
     // Calculate total price
-    const totalPrice = propertyU.discountedPrice * daysReserved
+    const totalPrice = propertyU.discountedPrice * actualDaysReserved
 
     // Create a new booking
     const newBooking = await Book.create({

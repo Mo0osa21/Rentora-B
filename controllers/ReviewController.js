@@ -81,12 +81,6 @@ const editReview = async (req, res) => {
       return res.status(404).json({ message: 'Review not found' })
     }
 
-    if (review.userId.toString() !== userId) {
-      return res
-        .status(403)
-        .json({ message: 'You are not authorized to edit this review' })
-    }
-
     // Update the review
     review.comment = comment
     review.rating = rating
@@ -111,12 +105,6 @@ const deleteReview = async (req, res) => {
     const review = await Review.findById(reviewId)
     if (!review) {
       return res.status(404).json({ message: 'Review not found' })
-    }
-
-    if (review.userId.toString() !== userId) {
-      return res
-        .status(403)
-        .json({ message: 'You are not authorized to delete this review' })
     }
 
     // Delete the review
