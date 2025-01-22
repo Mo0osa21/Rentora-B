@@ -53,9 +53,7 @@ const CreateProperty = async (req, res) => {
     const userId = res.locals.payload.id
 
     const discountedPrice =
-      discount > 0
-        ? (price - (price * discount) / 100).toFixed(2)
-        : price.toFixed(2)
+      discount > 0 ? price - (price * discount) / 100 : price
 
     const property = await Property.create({
       name,
