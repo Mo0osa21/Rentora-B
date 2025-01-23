@@ -19,19 +19,6 @@ const addReview = async (req, res) => {
   try {
     const { propertyId, userId, comment, rating } = req.body
 
-    // Ensure the user has booked the property and the status is "Confirmed"
-    const eligibleBooking = await Book.findOne({
-      user: userId,
-      property: propertyId,
-      status: 'expired'
-    })
-
-    if (!eligibleBooking) {
-      return res
-        .status(403)
-        .json({ message: 'You are not eligible to comment on this property.' })
-    }
-
     // Create a new review
     const review = new Review({
       propertyId,
